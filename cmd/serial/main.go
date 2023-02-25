@@ -5,29 +5,26 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/tarm/serial"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/tarm/serial"
 )
 
-
-//
 // Main
-//
 func main() {
 
 	// Log to the console with date, time and filename prepended
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	
+
 	//
 	// Get environment Variables
 	//
-	serialPort, exists := os.LookupEnv("MALONE_SERIAL_PORT")
+	serialPort, exists := os.LookupEnv("SERIAL_PORT")
 	if !exists {
-		log.Fatalln("MALONE_SERIAL_PORT environment variable not set")
+		log.Fatalln("SERIAL_PORT environment variable not set")
 	}
 
-	log.Printf("Using MALONE_SERIAL_PORT=%s",serialPort)
+	log.Printf("Using SERIAL_PORT=%s", serialPort)
 
 	//
 	// Start the serial server
@@ -42,18 +39,17 @@ func main() {
 
 }
 
-
 func serialServer(serialPort string) {
 
 	//
 	// Define a counter to keep track of the number of times the post has been delivered
-	// The device in the field will send a signal when it detect post delivery 
-	// A device attached to the serial port of one of the nodes will receive the signal 
+	// The device in the field will send a signal when it detect post delivery
+	// A device attached to the serial port of one of the nodes will receive the signal
 	// We will want to increment the counter when the signal is received
 	var postDeliveryCounter = prometheus.NewCounter(
 		prometheus.CounterOpts{
-				Name: "post_delivered_count",
-				Help: "No of times post has been delivered",
+			Name: "post_delivered_count",
+			Help: "No of times post has been delivered",
 		},
 	)
 	prometheus.MustRegister(postDeliveryCounter)
@@ -61,7 +57,7 @@ func serialServer(serialPort string) {
 	//
 	// Open the serial device
 	//
-	log.Printf("[serialServer] Open serial port: %v", serialPort)
+	log.Printf("Open serial port: %v", serialPort)
 	// Device is something like "/dev/ttyUSB0"
 	cfg := &serial.Config{Name: serialPort, Baud: 115200}
 	port, err := serial.OpenPort(cfg)
@@ -69,12 +65,12 @@ func serialServer(serialPort string) {
 	if err != nil {
 		log.Fatalf("error trying to open serial port %q. %v", serialPort, err)
 	}
-	log.Printf("[serialServer] using serial port: %v", serialPort)
-	
+	log.Printf("Using serial port: %v", serialPort)
+
 	//
 	// Monitor the serial port forever
 	//
-	log.Printf("[serialServer] Start read loop for serial port: %q...", serialPort)
+	log.Printf("Start read loop for serial port: %q...", serialPort)
 	for {
 		var err error
 		var n int
@@ -87,7 +83,7 @@ func serialServer(serialPort string) {
 		log.Printf("%q", buf[:n])
 
 		//
-		// For now consider any input as post delivery 
+		// For now consider any input as post delivery
 		//
 		postDeliveryCounter.Inc()
 

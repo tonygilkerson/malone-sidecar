@@ -6,7 +6,7 @@ FROM golang as build
 WORKDIR /build
 COPY . .
 
-RUN go build -o malone-sidecar cmd/serial/main.go 
+RUN go build -o serial-gateway cmd/serial/main.go 
 
 
 ############################################
@@ -16,6 +16,6 @@ FROM golang
 
 WORKDIR /app
 
-COPY --from=build /build/malone-sidecar .
-CMD ./malone-sidecar
+COPY --from=build /build/serial-gateway .
+CMD ./serial-gateway
 

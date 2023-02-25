@@ -1,6 +1,6 @@
-# malone-sidecar
+# serial-gateway
 
-A sidecar for the Malone app
+A serial gateway that runs in the cluster. It will read a serial port mounted from the node and process the messages received
 
 ## Virtrual Serial
 
@@ -15,5 +15,5 @@ socat PTY,link=./virtual-tty,raw,echo=0 -
 Then you can run this in a different terminal to read from the device.  Now you can type input into the first terminal, hit enter to make it available in the side car program.
 
 ```sh
-MALONE_SERIAL_PORT=./virtual-tty go run cmd/serial/main.go
+SERIAL_PORT=./virtual-tty go run cmd/serial/main.go
 ```

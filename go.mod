@@ -1,4 +1,4 @@
-module github.com/tonygilkerson/malone-sidecar
+module github.com/tonygilkerson/serial-gateway
 
 go 1.19
 
