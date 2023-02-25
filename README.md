@@ -15,5 +15,5 @@ socat PTY,link=./virtual-tty,raw,echo=0 -
 Then you can run this in a different terminal to read from the device.  Now you can type input into the first terminal, hit enter to make it available in the side car program.
 
 ```sh
-MALONE_DEVICE=./virtual-tty go run cmd/serial/main.go
+MALONE_SERIAL_PORT=./virtual-tty go run cmd/serial/main.go
 ```
