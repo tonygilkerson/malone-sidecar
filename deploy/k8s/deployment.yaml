@@ -24,14 +24,14 @@ spec:
               memory: 512Mi
           env:
           - name: SERIAL_PORT
-            value: /dev/ttyUSB0
+            value: /dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0
           volumeMounts:
             - name: serial-device
-              mountPath: /dev/ttyUSB0
+              mountPath: /dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0
           securityContext:
             privileged: true
             # runAsUser: 0              
       volumes:
         - name: serial-device
           hostPath:
-            path: /dev/ttyUSB0
+            path: /dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0
