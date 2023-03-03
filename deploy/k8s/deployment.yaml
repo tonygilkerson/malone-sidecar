@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: malone-sidecar
+  name: serial-gateway
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: malone-sidecar
+      app: serial-gateway
   template:
     metadata:
       labels:
-        app: malone-sidecar
+        app: serial-gateway
     spec:
       containers:
-        - name: malone-sidecar
-          image: ghcr.io/tonygilkerson/malone-sidecar:test
+        - name: serial-gateway
+          image: ghcr.io/tonygilkerson/serial-gateway:test
           resources:
             requests:
               cpu: 125m
