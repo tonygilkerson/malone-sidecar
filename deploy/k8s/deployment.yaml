@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: serial-gateway
-          image: ghcr.io/tonygilkerson/serial-gateway:test
+          image: ghcr.io/tonygilkerson/serial-gateway:v1.0.0
           resources:
             requests:
               cpu: 125m
@@ -31,4 +31,4 @@ spec:
       volumes:
         - name: serial-device
           hostPath:
-            path: /dev/ttyUSB0                            
+            path: /dev/ttyUSB0
