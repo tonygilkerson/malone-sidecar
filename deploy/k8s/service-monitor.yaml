@@ -10,4 +10,3 @@ spec:
       app: serial-gateway
   endpoints:
   - port: http
-    interval: 30s
