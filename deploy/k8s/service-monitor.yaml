@@ -3,7 +3,6 @@ kind: ServiceMonitor
 metadata:
   name: serial-gateway
   labels:
-    # app: serial-gateway
     release: kps
 spec:
   selector:
