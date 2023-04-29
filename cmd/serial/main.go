@@ -125,7 +125,6 @@ func serialServer(serialPort string) {
 			log.Fatalf("error trying to read serial port %q. %v\n", serialPort, err)
 		}
 		msg = string(buf[:n])
-		log.Printf("Rx: %v\n", msg)
 		
 		switch msg {
 		case string(marty.Arrived):
@@ -145,7 +144,7 @@ func serialServer(serialPort string) {
 			log.Println("increment mbxFalseAlarmCounter")
 
 		default:
-			log.Printf("No-op, received non-metric input: %s\n", msg )
+			log.Printf("No-op serial input: %s\n", msg )
 		}
 		
 	}
