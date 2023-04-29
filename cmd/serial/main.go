@@ -145,7 +145,7 @@ func serialServer(serialPort string) {
 			log.Println("increment mbxFalseAlarmCounter")
 
 		default:
-			log.Printf("Received non-metric input: %s\n", msg )
+			log.Printf("No-op, received non-metric input: %s\n", msg )
 		}
 		
 	}
