@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: serial-gateway
-          image: ghcr.io/tonygilkerson/serial-gateway:v1.0.0
+          image: ghcr.io/tonygilkerson/serial-gateway:v1.0.1
           resources:
             requests:
               cpu: 50m
@@ -24,10 +24,10 @@ spec:
               cpu: 125m
               memory: 128Mi
           ports:
-          - containerPort: 8080
+            - containerPort: 8080
           env:
-          - name: SERIAL_PORT
-            value: /dev/ttyUSB0
+            - name: SERIAL_PORT
+              value: /dev/ttyUSB0
           volumeMounts:
             - name: serial-device
               mountPath: /dev
