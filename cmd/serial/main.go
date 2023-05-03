@@ -161,6 +161,5 @@ func serialServer(serialPort string) {
 		default:
 			log.Printf("No-op serial input: %s\n", msg )
 		}
-		
 	}
 }
