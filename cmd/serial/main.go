@@ -95,6 +95,17 @@ func serialServer(serialPort string) {
 	prometheus.MustRegister(mbxFalseAlarmCounter)
 
 	//
+	// Define a counter to keep track of the number of mbx heartbeats  
+	//
+	var mbxHeartbeatCounter = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "mbx_heartbeat_count",
+			Help: "No of times a heartbeat has occurred",
+		},
+	)
+	prometheus.MustRegister(mbxHeartbeatCounter)
+
+	//
 	// Open the serial device
 	//
 	log.Printf("Open serial port: %v", serialPort)
@@ -142,6 +153,10 @@ func serialServer(serialPort string) {
 		case string(marty.FalseAlarm):
 			mbxFalseAlarmCounter.Inc()
 			log.Println("increment mbxFalseAlarmCounter")
+
+		case "MBX-HEARTBEAT":
+			mbxHeartbeatCounter.Inc()
+			log.Println("increment mbxHeartbeatCounter")
 
 		default:
 			log.Printf("No-op serial input: %s\n", msg )

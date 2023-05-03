@@ -5,7 +5,6 @@ go 1.19
 require (
 	github.com/prometheus/client_golang v1.15.0
 	github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07
-	golang.org/x/text v0.7.0
 
 // github.com/tonygilkerson/marty v0.0.0-20230424020124-4cffdc878cde
 
