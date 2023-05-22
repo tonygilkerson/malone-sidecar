@@ -95,6 +95,17 @@ func serialServer(serialPort string) {
 	prometheus.MustRegister(mbxFalseAlarmCounter)
 
 	//
+	// Define a counter to keep track of the number of times a sound is heard
+	//
+	var mbxHeardSoundCounter = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "mbx_heard_sound_count",
+			Help: "No of times a sound is heard",
+		},
+	)
+	prometheus.MustRegister(mbxFalseAlarmCounter)
+
+	//
 	// Define a counter to keep track of the number of mbx heartbeats  
 	//
 	var mbxHeartbeatCounter = prometheus.NewCounter(
@@ -153,6 +164,10 @@ func serialServer(serialPort string) {
 		case string(marty.FalseAlarm):
 			mbxFalseAlarmCounter.Inc()
 			log.Println("increment mbxFalseAlarmCounter")
+
+		case "HeardSound":
+			mbxHeardSoundCounter.Inc()
+			log.Println("increment mbxHeardSoundCounter")
 
 		case "MBX-HEARTBEAT":
 			mbxHeartbeatCounter.Inc()
