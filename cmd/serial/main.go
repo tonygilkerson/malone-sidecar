@@ -103,7 +103,7 @@ func serialServer(serialPort string) {
 			Help: "No of times a sound is heard",
 		},
 	)
-	prometheus.MustRegister(mbxFalseAlarmCounter)
+	prometheus.MustRegister(mbxHeardSoundCounter)
 
 	//
 	// Define a counter to keep track of the number of mbx heartbeats  
