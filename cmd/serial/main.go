@@ -106,6 +106,17 @@ func serialServer(serialPort string) {
 	prometheus.MustRegister(mbxHeardSoundCounter)
 
 	//
+	// Define a counter to keep track of the number Heard Sound heartbeats
+	//
+	var mbxHeardSoundHeartbeatCounter = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "mbx_heard_sound_heartbeat_count",
+			Help: "No of times a heard sound heartbeat has occurred",
+		},
+	)
+	prometheus.MustRegister(mbxHeardSoundHeartbeatCounter)
+
+	//
 	// Define a counter to keep track of the number of mbx heartbeats  
 	//
 	var mbxHeartbeatCounter = prometheus.NewCounter(
