@@ -180,6 +180,10 @@ func serialServer(serialPort string) {
 			mbxHeardSoundCounter.Inc()
 			log.Println("increment mbxHeardSoundCounter")
 
+		case "HeardSoundHeartbeat":
+			mbxHeardSoundHeartbeatCounter.Inc()
+			log.Println("increment mbxHeardSoundHeartbeatCounter")
+
 		case "MBX-HEARTBEAT":
 			mbxHeartbeatCounter.Inc()
 			log.Println("increment mbxHeartbeatCounter")
