@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/tonygilkerson/marty/pkg/marty"
-
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/tarm/serial"
@@ -43,89 +41,73 @@ func main() {
 
 func serialServer(serialPort string) {
 
-	// Define a counter to keep track of the number of times the post has been delivered
-	var mbxPostDeliveryCounter = prometheus.NewCounter(
+	//
+	// MailboxDoorOpened
+	//
+	var mbxMailboxDoorOpenedCount = prometheus.NewCounter(
 		prometheus.CounterOpts{
-			Name: "mvx_post_delivered_count",
-			Help: "No of times post has been delivered",
+			Name: "mbx_mailbox_door_opened_count",
+			Help: "No of times the mailbox door has been opened",
 		},
 	)
-	prometheus.MustRegister(mbxPostDeliveryCounter)
+	prometheus.MustRegister(mbxMailboxDoorOpenedCount)
 
-	// Define a counter to keep track of the number of times a car has arrived
-	var mbxArrivedCounter = prometheus.NewCounter(
+	var mbxMailboxDoorOpenedHeartbeatCount = prometheus.NewCounter(
 		prometheus.CounterOpts{
-			Name: "mbx_arrived_count",
-			Help: "No of times a car has arrived",
+			Name: "mbx_mailbox_door_opened_heartbeat_count",
+			Help: "Heartbeat counter for mbxMailboxDoorOpened",
 		},
 	)
-	prometheus.MustRegister(mbxArrivedCounter)
+	prometheus.MustRegister(mbxMailboxDoorOpenedHeartbeatCount)
 
 	//
-	// Define a counter to keep track of the number of times a car has departed
+	// HeardSound
 	//
-	var mbxDepartedCounter = prometheus.NewCounter(
-		prometheus.CounterOpts{
-			Name: "mbx_departed_count",
-			Help: "No of times a car has departed",
-		},
-	)
-	prometheus.MustRegister(mbxDepartedCounter)
-
-	//
-	// Define a counter to keep track of the number of times a car has departed
-	//
-	var mbxErrorCounter = prometheus.NewCounter(
-		prometheus.CounterOpts{
-			Name: "mbx_error_count",
-			Help: "No of times an error has occurred counting cars",
-		},
-	)
-	prometheus.MustRegister(mbxErrorCounter)
-
-	//
-	// Define a counter to keep track of the number of false alarms while counting cars  
-	//
-	var mbxFalseAlarmCounter = prometheus.NewCounter(
-		prometheus.CounterOpts{
-			Name: "mbx_false_count",
-			Help: "No of times an error has occurred counting cars",
-		},
-	)
-	prometheus.MustRegister(mbxFalseAlarmCounter)
-
-	//
-	// Define a counter to keep track of the number of times a sound is heard
-	//
-	var mbxHeardSoundCounter = prometheus.NewCounter(
+	var mbxHeardSoundCount = prometheus.NewCounter(
 		prometheus.CounterOpts{
 			Name: "mbx_heard_sound_count",
-			Help: "No of times a sound is heard",
+			Help: "No of times the mailbox door has been opened",
 		},
 	)
-	prometheus.MustRegister(mbxHeardSoundCounter)
+	prometheus.MustRegister(mbxHeardSoundCount)
 
-	//
-	// Define a counter to keep track of the number Heard Sound heartbeats
-	//
-	var mbxHeardSoundHeartbeatCounter = prometheus.NewCounter(
+	var mbxHeardSoundHeartbeatCount = prometheus.NewCounter(
 		prometheus.CounterOpts{
 			Name: "mbx_heard_sound_heartbeat_count",
-			Help: "No of times a heard sound heartbeat has occurred",
+			Help: "Heartbeat counter for mbxHeardSound",
 		},
 	)
-	prometheus.MustRegister(mbxHeardSoundHeartbeatCounter)
+	prometheus.MustRegister(mbxHeardSoundHeartbeatCount)
+
+	//
+	// MuleAlarm
+	//
+	var mbxMuleAlarmCount = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "mbx_mule_alarm_count",
+			Help: "No of times the mule alarm has gone off",
+		},
+	)
+	prometheus.MustRegister(mbxMuleAlarmCount)
+
+	var mbxMuleAlarmHeartbeatCount = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "mbx_mailbox_door_opened_heartbeat_count",
+			Help: "Heartbeat counter for mbxMuleAlarm",
+		},
+	)
+	prometheus.MustRegister(mbxMuleAlarmHeartbeatCount)
 
 	//
 	// Define a counter to keep track of the number of mbx heartbeats  
 	//
-	var mbxHeartbeatCounter = prometheus.NewCounter(
+	var mbxRoadMainLoopHeartbeatCount = prometheus.NewCounter(
 		prometheus.CounterOpts{
-			Name: "mbx_heartbeat_count",
-			Help: "No of times a heartbeat has occurred",
+			Name: "mbx_road_main_loop_heartbeat_count",
+			Help: "Heartbeat counter for the main loop for the device down on the road ",
 		},
 	)
-	prometheus.MustRegister(mbxHeartbeatCounter)
+	prometheus.MustRegister(mbxRoadMainLoopHeartbeatCount)
 
 	//
 	// Open the serial device
@@ -160,33 +142,34 @@ func serialServer(serialPort string) {
 		msg = string(buf[:n])
 		
 		switch msg {
-		case string(marty.Arrived):
-			mbxArrivedCounter.Inc()
-			log.Println("increment mbxArrivedCounter")
-
-		case string(marty.Departed):
-			mbxDepartedCounter.Inc()
-			log.Println("increment mbxDepartedCounter")
-
-		case string(marty.Error):
-			mbxErrorCounter.Inc()
-			log.Println("increment mbxErrorCounter")
-
-		case string(marty.FalseAlarm):
-			mbxFalseAlarmCounter.Inc()
-			log.Println("increment mbxFalseAlarmCounter")
 
 		case "HeardSound":
-			mbxHeardSoundCounter.Inc()
-			log.Println("increment mbxHeardSoundCounter")
+			mbxHeardSoundCount.Inc()
+			log.Println("increment mbxHeardSoundCount")
 
 		case "HeardSoundHeartbeat":
-			mbxHeardSoundHeartbeatCounter.Inc()
-			log.Println("increment mbxHeardSoundHeartbeatCounter")
+			mbxHeardSoundHeartbeatCount.Inc()
+			log.Println("increment mbxHeardSoundHeartbeatCount")
 
-		case "MBX-HEARTBEAT":
-			mbxHeartbeatCounter.Inc()
-			log.Println("increment mbxHeartbeatCounter")
+		case "MuleAlarm":
+			mbxMuleAlarmCount.Inc()
+			log.Println("increment mbxMuleAlarmCount")
+
+		case "MuleAlarmHeartbeat":
+			mbxMuleAlarmHeartbeatCount.Inc()
+			log.Println("increment mbxMuleAlarmHeartbeatCount")
+
+		case "MailboxDoorOpened":
+			mbxMailboxDoorOpenedCount.Inc()
+			log.Println("increment mbxMailboxDoorOpenedCount")
+
+		case "MailboxDoorOpenedHeartbeat":
+			mbxMailboxDoorOpenedHeartbeatCount.Inc()
+			log.Println("increment mbxMailboxDoorOpenedHeartbeatCount")
+
+		case "RoadMainLoopHeartbeat":
+			mbxRoadMainLoopHeartbeatCount.Inc()
+			log.Println("increment mbxRoadMainLoopHeartbeatCount")
 
 		default:
 			log.Printf("No-op serial input: %s\n", msg )
