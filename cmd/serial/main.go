@@ -92,7 +92,7 @@ func serialServer(serialPort string) {
 
 	var mbxMuleAlarmHeartbeatCount = prometheus.NewCounter(
 		prometheus.CounterOpts{
-			Name: "mbx_mailbox_door_opened_heartbeat_count",
+			Name: "mbx_mule_alarm_heartbeat_count",
 			Help: "Heartbeat counter for mbxMuleAlarm",
 		},
 	)
