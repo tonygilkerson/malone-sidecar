@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
+
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -39,6 +41,11 @@ func main() {
 
 }
 
+///////////////////////////////////////////////////////////////////////////////
+//
+//			Functions
+//
+///////////////////////////////////////////////////////////////////////////////
 func serialServer(serialPort string) {
 
 	//
@@ -60,24 +67,6 @@ func serialServer(serialPort string) {
 	)
 	prometheus.MustRegister(mbxMailboxDoorOpenedHeartbeatCount)
 
-	//
-	// HeardSound
-	//
-	var mbxHeardSoundCount = prometheus.NewCounter(
-		prometheus.CounterOpts{
-			Name: "mbx_heard_sound_count",
-			Help: "No of times the mailbox door has been opened",
-		},
-	)
-	prometheus.MustRegister(mbxHeardSoundCount)
-
-	var mbxHeardSoundHeartbeatCount = prometheus.NewCounter(
-		prometheus.CounterOpts{
-			Name: "mbx_heard_sound_heartbeat_count",
-			Help: "Heartbeat counter for mbxHeardSound",
-		},
-	)
-	prometheus.MustRegister(mbxHeardSoundHeartbeatCount)
 
 	//
 	// MuleAlarm
@@ -97,6 +86,17 @@ func serialServer(serialPort string) {
 		},
 	)
 	prometheus.MustRegister(mbxMuleAlarmHeartbeatCount)
+
+	//
+	// Mailbox Temperature
+	//
+	var mbxTemperatureFahrenheit = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "mbx_temperature_fahrenheit",
+			Help: "The temperature reading in fahrenheit from the device on the mailbox",
+		},
+	)
+	prometheus.MustRegister(mbxTemperatureFahrenheit)
 
 	//
 	// Define a counter to keep track of the number of mbx heartbeats  
@@ -141,38 +141,41 @@ func serialServer(serialPort string) {
 		}
 		msg = string(buf[:n])
 		
-		switch msg {
+		switch {
 
-		case "HeardSound":
-			mbxHeardSoundCount.Inc()
-			log.Println("increment mbxHeardSoundCount")
+		case strings.Contains(msg,"MailboxTemperature"):
 
-		case "HeardSoundHeartbeat":
-			mbxHeardSoundHeartbeatCount.Inc()
-			log.Println("increment mbxHeardSoundHeartbeatCount")
+			parts := strings.Split(msg, ":")
+			if len(parts[1]) > 0 {
+				f := float64(len(parts[1]))
+				mbxTemperatureFahrenheit.Set(f)
+				log.Println("set MailboxTemperature to: %v", f)
+			} else {
+				log.Println("Temperature reading expected but not found for input message: %v", msg)
+			}
 
-		case "MuleAlarm":
+		case msg == "MuleAlarm":
 			mbxMuleAlarmCount.Inc()
 			log.Println("increment mbxMuleAlarmCount")
 
-		case "MuleAlarmHeartbeat":
+		case msg == "MuleAlarmHeartbeat":
 			mbxMuleAlarmHeartbeatCount.Inc()
 			log.Println("increment mbxMuleAlarmHeartbeatCount")
 
-		case "MailboxDoorOpened":
+		case msg == "MailboxDoorOpened":
 			mbxMailboxDoorOpenedCount.Inc()
 			log.Println("increment mbxMailboxDoorOpenedCount")
 
-		case "MailboxDoorOpenedHeartbeat":
+		case msg == "MailboxDoorOpenedHeartbeat":
 			mbxMailboxDoorOpenedHeartbeatCount.Inc()
 			log.Println("increment mbxMailboxDoorOpenedHeartbeatCount")
 
-		case "RoadMainLoopHeartbeat":
+		case msg == "RoadMainLoopHeartbeat":
 			mbxRoadMainLoopHeartbeatCount.Inc()
 			log.Println("increment mbxRoadMainLoopHeartbeatCount")
 
 		default:
-			log.Printf("No-op serial input: %s\n", msg )
+			log.Printf("No-op: %s\n", msg )
 		}
 	}
 }
