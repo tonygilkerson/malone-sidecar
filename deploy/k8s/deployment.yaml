@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: serial-gateway
-          image: ghcr.io/tonygilkerson/serial-gateway:v1.0.10
+          image: ghcr.io/tonygilkerson/serial-gateway:v1.0.11
           resources:
             requests:
               cpu: 50m
