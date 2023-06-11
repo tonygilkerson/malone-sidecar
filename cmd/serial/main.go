@@ -149,9 +149,9 @@ func serialServer(serialPort string) {
 			if len(parts[1]) > 0 {
 				f := float64(len(parts[1]))
 				mbxTemperatureFahrenheit.Set(f)
-				log.Println("set MailboxTemperature to: %v", f)
+				log.Printf("set MailboxTemperature to: %v", f)
 			} else {
-				log.Println("Temperature reading expected but not found for input message: %v", msg)
+				log.Printf("Temperature reading expected but not found for input message: %v", msg)
 			}
 
 		case msg == "MuleAlarm":
