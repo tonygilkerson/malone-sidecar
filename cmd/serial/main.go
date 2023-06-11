@@ -144,7 +144,8 @@ func serialServer(serialPort string) {
 		switch {
 
 		case strings.Contains(msg,"MailboxTemperature"):
-
+			log.Printf("DEBUG: %v", msg) 
+			
 			parts := strings.Split(msg, ":")
 			if len(parts[1]) > 0 {
 				f := float64(len(parts[1]))
