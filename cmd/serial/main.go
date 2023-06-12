@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
-
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -144,15 +144,13 @@ func serialServer(serialPort string) {
 		switch {
 
 		case strings.Contains(msg,"MailboxTemperature"):
-			log.Printf("DEBUG: %v", msg) 
-			
 			parts := strings.Split(msg, ":")
-			if len(parts[1]) > 0 {
-				f := float64(len(parts[1]))
+			f, err := strconv.ParseFloat(parts[1],64)
+			if err != nil {
+				log.Printf("Error converting temperature reading to a float, original input message: %v, error: %v", msg,err)
+			} else {
 				mbxTemperatureFahrenheit.Set(f)
 				log.Printf("set MailboxTemperature to: %v", f)
-			} else {
-				log.Printf("Temperature reading expected but not found for input message: %v", msg)
 			}
 
 		case msg == "MuleAlarm":
