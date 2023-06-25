@@ -41,11 +41,11 @@ func main() {
 
 }
 
-///////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////
 //
-//			Functions
+//	Functions
 //
-///////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////
 func serialServer(serialPort string) {
 
 	//
@@ -66,7 +66,6 @@ func serialServer(serialPort string) {
 		},
 	)
 	prometheus.MustRegister(mbxMailboxDoorOpenedHeartbeatCount)
-
 
 	//
 	// MuleAlarm
@@ -99,7 +98,29 @@ func serialServer(serialPort string) {
 	prometheus.MustRegister(mbxTemperatureFahrenheit)
 
 	//
-	// Define a counter to keep track of the number of mbx heartbeats  
+	// Charge Status
+	//
+	var mbxChargerChargeStatus = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "mbx_charger_charge_status",
+			Help: "The charger's charge status, 0=off, 1=on",
+		},
+	)
+	prometheus.MustRegister(mbxChargerChargeStatus)
+
+	//
+	// Charge Power Source  ChargerPowerSourceGood
+	//
+	var mbxChargerPowerStatus = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "mbx_charger_power_status",
+			Help: "The charger's power source status, 0=bad, 1=good",
+		},
+	)
+	prometheus.MustRegister(mbxChargerPowerStatus)
+
+	//
+	// Define a counter to keep track of the number of mbx heartbeats
 	//
 	var mbxRoadMainLoopHeartbeatCount = prometheus.NewCounter(
 		prometheus.CounterOpts{
@@ -117,7 +138,7 @@ func serialServer(serialPort string) {
 	// Device is something like "/dev/ttyUSB0"
 	cfg := &serial.Config{Name: serialPort, Baud: 115200}
 	port, err := serial.OpenPort(cfg)
-	
+
 	if err != nil {
 		log.Fatalf("error trying to open serial port %q. %v", serialPort, err)
 	}
@@ -140,14 +161,14 @@ func serialServer(serialPort string) {
 			log.Fatalf("error trying to read serial port %q. %v\n", serialPort, err)
 		}
 		msg = string(buf[:n])
-		
+
 		switch {
 
-		case strings.Contains(msg,"MailboxTemperature"):
+		case strings.Contains(msg, "MailboxTemperature"):
 			parts := strings.Split(msg, ":")
-			f, err := strconv.ParseFloat(parts[1],64)
+			f, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
-				log.Printf("Error converting temperature reading to a float, original input message: %v, error: %v", msg,err)
+				log.Printf("Error converting temperature reading to a float, original input message: %v, error: %v", msg, err)
 			} else {
 				mbxTemperatureFahrenheit.Set(f)
 				log.Printf("set MailboxTemperature to: %v", f)
@@ -165,6 +186,22 @@ func serialServer(serialPort string) {
 			mbxMailboxDoorOpenedCount.Inc()
 			log.Println("increment mbxMailboxDoorOpenedCount")
 
+		case msg == "ChargerChargeStatusOn":
+			mbxChargerChargeStatus.Set(1)
+			log.Println("set mbxChargerChargeStatus to ON")
+
+		case msg == "ChargerChargeStatusOff":
+			mbxChargerChargeStatus.Set(0)
+			log.Println("set mbxChargerChargeStatus to OFF")
+
+		case msg == "ChargerPowerSourceGood":
+			mbxChargerPowerStatus.Set(1)
+			log.Println("set mbxChargerPowerStatus to GOOD")
+
+		case msg == "ChargerPowerSourceBad":
+			mbxChargerPowerStatus.Set(0)
+			log.Println("set mbxChargerPowerStatus to BAD")
+
 		case msg == "MailboxDoorOpenedHeartbeat":
 			mbxMailboxDoorOpenedHeartbeatCount.Inc()
 			log.Println("increment mbxMailboxDoorOpenedHeartbeatCount")
@@ -174,7 +211,7 @@ func serialServer(serialPort string) {
 			log.Println("increment mbxRoadMainLoopHeartbeatCount")
 
 		default:
-			log.Printf("No-op: %s\n", msg )
+			log.Printf("No-op: %s\n", msg)
 		}
 	}
 }
