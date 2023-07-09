@@ -3,7 +3,8 @@ kind: ServiceMonitor
 metadata:
   name: serial-gateway
   labels:
-    release: kps
+    # release: kps
+    tonygilkerson.us/alerting: enabled
 spec:
   selector:
     matchLabels:

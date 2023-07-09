@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -29,14 +31,25 @@ func main() {
 	log.Printf("Using SERIAL_PORT=%s", serialPort)
 
 	//
-	// Start the serial server
+	// open serial device
+	// Device is something like "/dev/ttyUSB0"
 	//
-	go serialServer(serialPort)
+	cfg := &serial.Config{Name: serialPort, Baud: 115200}
+	port, err := serial.OpenPort(cfg)
+	if err != nil {
+		log.Panicf("Error could not open serial port %q. %v\n", serialPort, err)
+	}
+
+	//
+	// Start serialServer
+	//
+	go serialServer(port)
 
 	//
 	// Server up API endpoints
 	//
 	http.Handle("/metrics", promhttp.Handler())
+	http.HandleFunc("/pub", func(w http.ResponseWriter, r *http.Request){pubMsg(w,r,port)})
 	http.ListenAndServe(":8080", nil)
 
 }
@@ -46,7 +59,28 @@ func main() {
 //	Functions
 //
 // /////////////////////////////////////////////////////////////////////////////
-func serialServer(serialPort string) {
+func pubMsg(w http.ResponseWriter, r *http.Request, port *serial.Port) {
+	
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Println(err)
+		fmt.Fprintf(w, "error")
+	} else {
+		fmt.Fprintf(w, "ok")
+	}
+
+	//
+	//  Write to serial port
+	//
+	log.Printf("Write to serial port [%v]", string(body))
+	_, err = port.Write(body)
+	if err != nil {
+		log.Printf("Error writing to serial port [%v]\n", err)
+	}
+}
+
+
+func serialServer(port *serial.Port) {
 
 	//
 	// MailboxDoorOpened
@@ -131,24 +165,10 @@ func serialServer(serialPort string) {
 	prometheus.MustRegister(mbxRoadMainLoopHeartbeatCount)
 
 	//
-	// Open the serial device
-	//
-	log.Printf("Open serial port: %v", serialPort)
-
-	// Device is something like "/dev/ttyUSB0"
-	cfg := &serial.Config{Name: serialPort, Baud: 115200}
-	port, err := serial.OpenPort(cfg)
-
-	if err != nil {
-		log.Fatalf("error trying to open serial port %q. %v", serialPort, err)
-	}
-	log.Printf("Using serial port: %v", serialPort)
-
-	//
 	// Monitor the serial port forever
 	//
 	buf := make([]byte, 128)
-	log.Printf("Start read loop for serial port: %q...", serialPort)
+	log.Println("Start read loop for serial port")
 
 	for {
 
@@ -158,7 +178,7 @@ func serialServer(serialPort string) {
 
 		n, err = port.Read(buf)
 		if err != nil {
-			log.Fatalf("error trying to read serial port %q. %v\n", serialPort, err)
+			log.Panicf("Error trying to read serial port %v\n", err)
 		}
 		msg = string(buf[:n])
 
