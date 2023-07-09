@@ -23,6 +23,6 @@ SERIAL_PORT=./virtual-tty go run cmd/serial/main.go
 The serial-gateway has a `/pub` endpoint that can be used for testing. A `POST` to `/pub` will result in the http body being written to the serial port on the host. As a result the LORA gateway will broadcast the contents for any LORA device to receive.
 
 ```sh
-kubectl port-forward tbd
+kubectl -n iot port-forward svc/serial-gateway 8080:8080 
 curl -X POST "http://localhost:8080/pub" -d "a-message" 
 ```
