@@ -12,6 +12,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/tarm/serial"
+	iotmsg "github.com/tonygilkerson/mbx-iot/pkg/msg"
 )
 
 // Main
@@ -49,7 +50,7 @@ func main() {
 	// Server up API endpoints
 	//
 	http.Handle("/metrics", promhttp.Handler())
-	http.HandleFunc("/pub", func(w http.ResponseWriter, r *http.Request){pubMsg(w,r,port)})
+	http.HandleFunc("/pub", func(w http.ResponseWriter, r *http.Request) { pubMsg(w, r, port) })
 	http.ListenAndServe(":8080", nil)
 
 }
@@ -60,7 +61,7 @@ func main() {
 //
 // /////////////////////////////////////////////////////////////////////////////
 func pubMsg(w http.ResponseWriter, r *http.Request, port *serial.Port) {
-	
+
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Println(err)
@@ -79,7 +80,6 @@ func pubMsg(w http.ResponseWriter, r *http.Request, port *serial.Port) {
 	}
 }
 
-
 func serialServer(port *serial.Port) {
 
 	//
@@ -93,14 +93,6 @@ func serialServer(port *serial.Port) {
 	)
 	prometheus.MustRegister(mbxMailboxDoorOpenedCount)
 
-	var mbxMailboxDoorOpenedHeartbeatCount = prometheus.NewCounter(
-		prometheus.CounterOpts{
-			Name: "mbx_mailbox_door_opened_heartbeat_count",
-			Help: "Heartbeat counter for mbxMailboxDoorOpened",
-		},
-	)
-	prometheus.MustRegister(mbxMailboxDoorOpenedHeartbeatCount)
-
 	//
 	// MuleAlarm
 	//
@@ -111,14 +103,6 @@ func serialServer(port *serial.Port) {
 		},
 	)
 	prometheus.MustRegister(mbxMuleAlarmCount)
-
-	var mbxMuleAlarmHeartbeatCount = prometheus.NewCounter(
-		prometheus.CounterOpts{
-			Name: "mbx_mule_alarm_heartbeat_count",
-			Help: "Heartbeat counter for mbxMuleAlarm",
-		},
-	)
-	prometheus.MustRegister(mbxMuleAlarmHeartbeatCount)
 
 	//
 	// Mailbox Temperature
@@ -184,7 +168,7 @@ func serialServer(port *serial.Port) {
 
 		switch {
 
-		case strings.Contains(msg, "MailboxTemperature"):
+		case strings.Contains(msg, string(iotmsg.MbxTemperature)):
 			parts := strings.Split(msg, ":")
 			f, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
@@ -194,39 +178,31 @@ func serialServer(port *serial.Port) {
 				log.Printf("set MailboxTemperature to: %v", f)
 			}
 
-		case msg == "MuleAlarm":
+		case msg == iotmsg.MbxMuleAlarm:
 			mbxMuleAlarmCount.Inc()
 			log.Println("increment mbxMuleAlarmCount")
 
-		case msg == "MuleAlarmHeartbeat":
-			mbxMuleAlarmHeartbeatCount.Inc()
-			log.Println("increment mbxMuleAlarmHeartbeatCount")
-
-		case msg == "MailboxDoorOpened":
+		case msg == iotmsg.MbxDoorOpened:
 			mbxMailboxDoorOpenedCount.Inc()
 			log.Println("increment mbxMailboxDoorOpenedCount")
 
-		case msg == "ChargerChargeStatusOn":
+		case msg == iotmsg.MbxChargerChargeStatusOn:
 			mbxChargerChargeStatus.Set(1)
 			log.Println("set mbxChargerChargeStatus to ON")
 
-		case msg == "ChargerChargeStatusOff":
+		case msg == iotmsg.MbxChargerChargeStatusOff:
 			mbxChargerChargeStatus.Set(0)
 			log.Println("set mbxChargerChargeStatus to OFF")
 
-		case msg == "ChargerPowerSourceGood":
+		case msg == iotmsg.MbxChargerPowerSourceGood:
 			mbxChargerPowerStatus.Set(1)
 			log.Println("set mbxChargerPowerStatus to GOOD")
 
-		case msg == "ChargerPowerSourceBad":
+		case msg == iotmsg.MbxChargerPowerSourceBad:
 			mbxChargerPowerStatus.Set(0)
 			log.Println("set mbxChargerPowerStatus to BAD")
 
-		case msg == "MailboxDoorOpenedHeartbeat":
-			mbxMailboxDoorOpenedHeartbeatCount.Inc()
-			log.Println("increment mbxMailboxDoorOpenedHeartbeatCount")
-
-		case msg == "RoadMainLoopHeartbeat":
+		case msg == iotmsg.MbxRoadMainLoopHeartbeat:
 			mbxRoadMainLoopHeartbeatCount.Inc()
 			log.Println("increment mbxRoadMainLoopHeartbeatCount")
 

@@ -5,9 +5,6 @@ go 1.19
 require (
 	github.com/prometheus/client_golang v1.15.0
 	github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07
-
-// github.com/tonygilkerson/marty v0.0.0-20230424020124-4cffdc878cde
-
 )
 
 require (
@@ -18,6 +15,10 @@ require (
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.42.0 // indirect
 	github.com/prometheus/procfs v0.9.0 // indirect
-	golang.org/x/sys v0.7.0 // indirect
+	github.com/tonygilkerson/mbx-iot v0.0.5
+	golang.org/x/sys v0.6.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 )
+
+// DEVTODO - Remove me when done with development
+replace github.com/tonygilkerson/mbx-iot v0.0.5 => ../mbx-iot
