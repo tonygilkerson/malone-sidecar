@@ -8,7 +8,7 @@
     [
       "@semantic-release/exec", 
       {
-        "prepareCmd": "tag=\"v${nextRelease.version}\" yq eval '.image.tag = strenv(tag)' ./charts/serial-gateway/values.yaml --inplace"
+        "prepareCmd": "make version=${nextRelease.version} setVersion"
       }
     ],
     [
