@@ -8,13 +8,13 @@
     [
       "@semantic-release/exec", 
       {
-        "prepareCmd": "img=\"ghcr.io/tonygilkerson/serial-gateway:v${nextRelease.version}\" yq eval '.spec.template.spec.containers[0].image = strenv(img)' ./deploy/k8s/deployment.yaml --inplace"
+        "prepareCmd": "tag=\"v${nextRelease.version}\" yq eval '.image.tag = strenv(tag)' ./charts/serial-gateway/values.yaml --inplace"
       }
     ],
     [
       "@semantic-release/git", 
       {
-        "assets": [ "./deploy/k8s/deployment.yaml"],
+        "assets": [ "./charts/serial-gateway/values.yaml" ],
         "message": "chore(release): ${nextRelease.version}  \n\n${nextRelease.notes}"
       }
     ]

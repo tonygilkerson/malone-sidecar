@@ -12,7 +12,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/tarm/serial"
-	iotmsg "github.com/tonygilkerson/mbx-iot/pkg/msg"
+	"github.com/tonygilkerson/mbx-iot/pkg/iot"
 )
 
 // Main
@@ -168,7 +168,7 @@ func serialServer(port *serial.Port) {
 
 		switch {
 
-		case strings.Contains(msg, string(iotmsg.MbxTemperature)):
+		case strings.Contains(msg, string(iot.MbxTemperature)):
 			parts := strings.Split(msg, ":")
 			f, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
@@ -178,31 +178,31 @@ func serialServer(port *serial.Port) {
 				log.Printf("set MailboxTemperature to: %v", f)
 			}
 
-		case msg == iotmsg.MbxMuleAlarm:
+		case msg == iot.MbxMuleAlarm:
 			mbxMuleAlarmCount.Inc()
 			log.Println("increment mbxMuleAlarmCount")
 
-		case msg == iotmsg.MbxDoorOpened:
+		case msg == iot.MbxDoorOpened:
 			mbxMailboxDoorOpenedCount.Inc()
 			log.Println("increment mbxMailboxDoorOpenedCount")
 
-		case msg == iotmsg.MbxChargerChargeStatusOn:
+		case msg == iot.MbxChargerChargeStatusOn:
 			mbxChargerChargeStatus.Set(1)
 			log.Println("set mbxChargerChargeStatus to ON")
 
-		case msg == iotmsg.MbxChargerChargeStatusOff:
+		case msg == iot.MbxChargerChargeStatusOff:
 			mbxChargerChargeStatus.Set(0)
 			log.Println("set mbxChargerChargeStatus to OFF")
 
-		case msg == iotmsg.MbxChargerPowerSourceGood:
+		case msg == iot.MbxChargerPowerSourceGood:
 			mbxChargerPowerStatus.Set(1)
 			log.Println("set mbxChargerPowerStatus to GOOD")
 
-		case msg == iotmsg.MbxChargerPowerSourceBad:
+		case msg == iot.MbxChargerPowerSourceBad:
 			mbxChargerPowerStatus.Set(0)
 			log.Println("set mbxChargerPowerStatus to BAD")
 
-		case msg == iotmsg.MbxRoadMainLoopHeartbeat:
+		case msg == iot.MbxRoadMainLoopHeartbeat:
 			mbxRoadMainLoopHeartbeatCount.Inc()
 			log.Println("increment mbxRoadMainLoopHeartbeatCount")
 
