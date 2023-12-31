@@ -19,7 +19,7 @@ help:
 setVersion:
 	@echo Set version "$(version)";\
 	ver="$(version)" yq e '.image.tag = strenv(ver)' ./charts/serial-gateway/values.yaml --inplace;\
-	ver="$(version)" yq e '.version = strenv(ver)' charts/serial-gateway/Chart.yaml  --inplace;\
-	ver="$(version)" yq e '.appVersion = strenv(ver)' charts/serial-gateway/Chart.yaml  --inplace;
+	ver="$(version)" yq e '.version = strenv(ver)' ./charts/serial-gateway/Chart.yaml  --inplace;\
+	ver="$(version)" yq e '.appVersion = strenv(ver)' ./charts/serial-gateway/Chart.yaml  --inplace;
 
 
