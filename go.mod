@@ -1,6 +1,8 @@
 module github.com/tonygilkerson/serial-gateway
 
-go 1.19
+go 1.21
+
+toolchain go1.21.5
 
 require (
 	github.com/prometheus/client_golang v1.15.0
@@ -15,10 +17,10 @@ require (
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.42.0 // indirect
 	github.com/prometheus/procfs v0.9.0 // indirect
-	github.com/tonygilkerson/mbx-iot v0.0.5
+	github.com/tonygilkerson/mbx-iot v0.0.6
 	golang.org/x/sys v0.6.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 )
 
 // DEVTODO - Remove me when done with development
-replace github.com/tonygilkerson/mbx-iot v0.0.5 => ../mbx-iot
+//replace github.com/tonygilkerson/mbx-iot v0.0.6 => ../mbx-iot
