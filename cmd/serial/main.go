@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -160,6 +161,9 @@ func serialServer(port *serial.Port) {
 		var n int
 		var msg string
 
+		log.Println("Pause for buffer ZZZzzz...")
+		time.Sleep(time.Millisecond * 50)
+		
 		n, err = port.Read(buf)
 		if err != nil {
 			log.Panicf("Error trying to read serial port %v\n", err)
