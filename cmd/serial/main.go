@@ -159,59 +159,74 @@ func serialServer(port *serial.Port) {
 
 		var err error
 		var n int
-		var msg string
+		var partialMsg string
 
-		log.Println("Pause for buffer ZZZzzz...")
-		time.Sleep(time.Millisecond * 50)
-		
 		n, err = port.Read(buf)
 		if err != nil {
 			log.Panicf("Error trying to read serial port %v\n", err)
 		}
-		msg = string(buf[:n])
 
-		switch {
+		//
+		// messages should looks like "msg1|msg2|msg3|" and end in a |
+		//
+		messages := partialMsg + string(buf[:n])
 
-		case strings.Contains(msg, string(iot.MbxTemperature)):
-			parts := strings.Split(msg, ":")
-			f, err := strconv.ParseFloat(parts[1], 64)
-			if err != nil {
-				log.Printf("Error converting temperature reading to a float, original input message: %v, error: %v", msg, err)
-			} else {
-				mbxTemperatureFahrenheit.Set(f)
-				log.Printf("set MailboxTemperature to: %v", f)
+		// prepend the partial message from last time to the message we got this time
+		// if we don't find a | then we still have a partial message
+		// Add to the partial message and keep reading
+		if !strings.HasSuffix(messages, "|") {
+			partialMsg = messages
+			continue
+		}
+
+		//
+		// Split
+		msgs := strings.Split(messages, "|")
+		for _, msg := range msgs {
+
+			switch {
+
+			case strings.Contains(msg, string(iot.MbxTemperature)):
+				parts := strings.Split(msg, ":")
+				f, err := strconv.ParseFloat(parts[1], 64)
+				if err != nil {
+					log.Printf("Error converting temperature reading to a float, original input message: %v, error: %v", msg, err)
+				} else {
+					mbxTemperatureFahrenheit.Set(f)
+					log.Printf("set MailboxTemperature to: %v", f)
+				}
+
+			case msg == iot.MbxMuleAlarm:
+				mbxMuleAlarmCount.Inc()
+				log.Println("increment mbxMuleAlarmCount")
+
+			case msg == iot.MbxDoorOpened:
+				mbxMailboxDoorOpenedCount.Inc()
+				log.Println("increment mbxMailboxDoorOpenedCount")
+
+			case msg == iot.MbxChargerChargeStatusOn:
+				mbxChargerChargeStatus.Set(1)
+				log.Println("set mbxChargerChargeStatus to ON")
+
+			case msg == iot.MbxChargerChargeStatusOff:
+				mbxChargerChargeStatus.Set(0)
+				log.Println("set mbxChargerChargeStatus to OFF")
+
+			case msg == iot.MbxChargerPowerSourceGood:
+				mbxChargerPowerStatus.Set(1)
+				log.Println("set mbxChargerPowerStatus to GOOD")
+
+			case msg == iot.MbxChargerPowerSourceBad:
+				mbxChargerPowerStatus.Set(0)
+				log.Println("set mbxChargerPowerStatus to BAD")
+
+			case msg == iot.MbxRoadMainLoopHeartbeat:
+				mbxRoadMainLoopHeartbeatCount.Inc()
+				log.Println("increment mbxRoadMainLoopHeartbeatCount")
+
+			default:
+				log.Printf("No-op: %s\n", msg)
 			}
-
-		case msg == iot.MbxMuleAlarm:
-			mbxMuleAlarmCount.Inc()
-			log.Println("increment mbxMuleAlarmCount")
-
-		case msg == iot.MbxDoorOpened:
-			mbxMailboxDoorOpenedCount.Inc()
-			log.Println("increment mbxMailboxDoorOpenedCount")
-
-		case msg == iot.MbxChargerChargeStatusOn:
-			mbxChargerChargeStatus.Set(1)
-			log.Println("set mbxChargerChargeStatus to ON")
-
-		case msg == iot.MbxChargerChargeStatusOff:
-			mbxChargerChargeStatus.Set(0)
-			log.Println("set mbxChargerChargeStatus to OFF")
-
-		case msg == iot.MbxChargerPowerSourceGood:
-			mbxChargerPowerStatus.Set(1)
-			log.Println("set mbxChargerPowerStatus to GOOD")
-
-		case msg == iot.MbxChargerPowerSourceBad:
-			mbxChargerPowerStatus.Set(0)
-			log.Println("set mbxChargerPowerStatus to BAD")
-
-		case msg == iot.MbxRoadMainLoopHeartbeat:
-			mbxRoadMainLoopHeartbeatCount.Inc()
-			log.Println("increment mbxRoadMainLoopHeartbeatCount")
-
-		default:
-			log.Printf("No-op: %s\n", msg)
 		}
 	}
 }

@@ -24,7 +24,7 @@ The serial-gateway has a `/pub` endpoint that can be used for testing. A `POST` 
 
 ```sh
 ssh -D 9995 weeble
-kubectl ctx weeble
+kubectl ctx weeble-admin
 kubectl -n iot port-forward svc/serial-gateway 8080:8080 
 curl -X POST "http://localhost:8080/pub" -d "a-message" 
 ```
