@@ -27,4 +27,8 @@ ssh -D 9995 weeble
 kubectl ctx weeble-admin
 kubectl -n iot port-forward svc/serial-gateway 8080:8080 
 curl -X POST "http://localhost:8080/pub" -d "a-message" 
+
+## or
+curl -X POST "https://serial-gateway.tonygilkerson.us/pub" -d "a-message" 
+
 ```
