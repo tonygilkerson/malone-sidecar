@@ -160,6 +160,8 @@ func serialServer(port *serial.Port) {
 		var n int
 		var partialMsg string
 
+		log.Println("serialServer: read serial port")
+
 		n, err = port.Read(buf)
 		if err != nil {
 			log.Panicf("Error trying to read serial port %v\n", err)
@@ -168,19 +170,26 @@ func serialServer(port *serial.Port) {
 		//
 		// messages should looks like "msg1|msg2|msg3|" and end in a |
 		//
+		log.Printf("serialServer: received %v bytes: %v",n,string(buf[:n]))
 		messages := partialMsg + string(buf[:n])
+
+		log.Printf("serialServer: messages, is it partial - initial read? %v",messages)
 
 		// prepend the partial message from last time to the message we got this time
 		// if we don't find a | then we still have a partial message
 		// Add to the partial message and keep reading
 		if !strings.HasSuffix(messages, "|") {
 			partialMsg = messages
+			log.Printf("serialServer: it is partial set, set partialMsg and continue: %v",partialMsg)
 			continue
 		}
 
+		log.Printf("serialServer: messages that need split: %v",messages)
 		//
 		// Split
 		msgs := strings.Split(messages, "|")
+
+		log.Printf("serialServer: msgs: %v",msgs)
 		for _, msg := range msgs {
 
 			switch {
