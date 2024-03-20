@@ -1,7 +1,6 @@
 apiVersion: v2
 name: serial-gateway
 description: A Helm chart for Kubernetes
-
 type: application
 version: v1.0.27
 appVersion: "v1.0.27"
