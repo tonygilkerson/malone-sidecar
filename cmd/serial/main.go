@@ -183,6 +183,9 @@ func serialServer(port *serial.Port) {
 			partialMsg = messages
 			log.Printf("serialServer: no terminator found, this is a partial message, set partialMsg and continue: %v",partialMsg)
 			continue
+		} else {
+			log.Printf("serialServer: found terminator, clear partialMsg\n")
+			partialMsg = ""
 		}
 
 		log.Printf("serialServer: messages that need split: %v",messages)
