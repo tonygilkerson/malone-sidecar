@@ -19,7 +19,7 @@ import (
 func main() {
 
 	// Log to the console with date, time and filename prepended
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	log.SetFlags(log.LstdFlags | log.Llongfile)
 
 	//
 	// Get environment Variables
@@ -161,7 +161,7 @@ func serialServer(port *serial.Port) {
 		var err error
 		var n int
 
-		log.Println("serialServer: read serial port")
+		log.Println("read serial port")
 
 		n, err = port.Read(buf)
 		if err != nil {
@@ -171,29 +171,29 @@ func serialServer(port *serial.Port) {
 		//
 		// messages should looks like "msg1|msg2|msg3|" and end in a |
 		//
-		log.Printf("serialServer: received %v bytes, buff: %v",n,string(buf[:n]))
+		log.Printf("received %v bytes, buff: %v",n,string(buf[:n]))
 		messages := partialMsg + string(buf[:n])
 
-		log.Printf("serialServer: messages: %v",messages)
+		log.Printf("messages: %v",messages)
 
 		// prepend the partial message from last time to the message we got this time
 		// if we don't find a | then we still have a partial message
 		// Add to the partial message and keep reading
 		if !strings.HasSuffix(messages, "|") {
 			partialMsg = messages
-			log.Printf("serialServer: no terminator found, this is a partial message, set partialMsg and continue: %v",partialMsg)
+			log.Printf("no terminator found, this is a partial message, set partialMsg and continue: %v",partialMsg)
 			continue
 		} else {
-			log.Printf("serialServer: found terminator, clear partialMsg\n")
+			log.Printf("found terminator, clear partialMsg\n")
 			partialMsg = ""
 		}
 
-		log.Printf("serialServer: messages that need split: %v",messages)
+		log.Printf("messages that need split: %v",messages)
 		//
 		// Split
 		msgs := strings.Split(messages, "|")
 
-		log.Printf("serialServer: msgs: %v",msgs)
+		log.Printf("msgs: %v",msgs)
 		for _, msg := range msgs {
 
 			switch {
@@ -210,7 +210,7 @@ func serialServer(port *serial.Port) {
 
 			case msg == iot.MbxMuleAlarm:
 				mbxMuleAlarmCount.Inc()
-				log.Println("increment mbxMuleAlarmCount")
+				log.Println("ACTION: increment mbxMuleAlarmCount")
 
 			case msg == iot.MbxDoorOpened:
 				mbxMailboxDoorOpenedCount.Inc()
@@ -218,29 +218,29 @@ func serialServer(port *serial.Port) {
 
 			case msg == iot.MbxChargerChargeStatusOn:
 				mbxChargerChargeStatus.Set(1)
-				log.Println("set mbxChargerChargeStatus to ON")
+				log.Println("ACTION: set mbxChargerChargeStatus to ON")
 
 			case msg == iot.MbxChargerChargeStatusOff:
 				mbxChargerChargeStatus.Set(0)
-				log.Println("set mbxChargerChargeStatus to OFF")
+				log.Println("ACTION: set mbxChargerChargeStatus to OFF")
 
 			case msg == iot.MbxChargerPowerSourceGood:
 				mbxChargerPowerStatus.Set(1)
-				log.Println("set mbxChargerPowerStatus to GOOD")
+				log.Println("ACTION: set mbxChargerPowerStatus to GOOD")
 
 			case msg == iot.MbxChargerPowerSourceBad:
 				mbxChargerPowerStatus.Set(0)
-				log.Println("set mbxChargerPowerStatus to BAD")
+				log.Println("ACTION: set mbxChargerPowerStatus to BAD")
 
 			case msg == iot.MbxRoadMainLoopHeartbeat:
 				mbxRoadMainLoopHeartbeatCount.Inc()
-				log.Println("increment mbxRoadMainLoopHeartbeatCount")
+				log.Println("ACTION: increment mbxRoadMainLoopHeartbeatCount")
 
 			case msg == "":
 				// eat whitespace
 				
 			default:
-				log.Printf("No-op: %s\n", msg)
+				log.Printf("ACTION: No-op: %s\n", msg)
 			}
 		}
 	}
