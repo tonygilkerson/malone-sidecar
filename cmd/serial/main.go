@@ -154,11 +154,12 @@ func serialServer(port *serial.Port) {
 	buf := make([]byte, 128)
 	log.Println("Start read loop for serial port")
 
+	var partialMsg string
+
 	for {
 
 		var err error
 		var n int
-		var partialMsg string
 
 		log.Println("serialServer: read serial port")
 
@@ -170,17 +171,17 @@ func serialServer(port *serial.Port) {
 		//
 		// messages should looks like "msg1|msg2|msg3|" and end in a |
 		//
-		log.Printf("serialServer: received %v bytes: %v",n,string(buf[:n]))
+		log.Printf("serialServer: received %v bytes, buff: %v",n,string(buf[:n]))
 		messages := partialMsg + string(buf[:n])
 
-		log.Printf("serialServer: messages, is it partial - initial read? %v",messages)
+		log.Printf("serialServer: messages: %v",messages)
 
 		// prepend the partial message from last time to the message we got this time
 		// if we don't find a | then we still have a partial message
 		// Add to the partial message and keep reading
 		if !strings.HasSuffix(messages, "|") {
 			partialMsg = messages
-			log.Printf("serialServer: it is partial set, set partialMsg and continue: %v",partialMsg)
+			log.Printf("serialServer: no terminator found, this is a partial message, set partialMsg and continue: %v",partialMsg)
 			continue
 		}
 
@@ -232,6 +233,9 @@ func serialServer(port *serial.Port) {
 				mbxRoadMainLoopHeartbeatCount.Inc()
 				log.Println("increment mbxRoadMainLoopHeartbeatCount")
 
+			case msg == "":
+				// eat whitespace
+				
 			default:
 				log.Printf("No-op: %s\n", msg)
 			}
