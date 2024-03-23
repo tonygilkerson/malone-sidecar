@@ -17,10 +17,10 @@ require (
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.42.0 // indirect
 	github.com/prometheus/procfs v0.9.0 // indirect
-	github.com/tonygilkerson/mbx-iot v0.0.6
+	github.com/tonygilkerson/mbx-iot v0.0.7
 	golang.org/x/sys v0.6.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 )
 
 // DEVTODO - Remove me when done with development
-//replace github.com/tonygilkerson/mbx-iot v0.0.6 => ../mbx-iot
+//replace github.com/tonygilkerson/mbx-iot v0.0.7 => ../mbx-iot

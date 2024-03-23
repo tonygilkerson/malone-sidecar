@@ -143,10 +143,32 @@ func serialServer(port *serial.Port) {
 	var mbxRoadMainLoopHeartbeatCount = prometheus.NewCounter(
 		prometheus.CounterOpts{
 			Name: "mbx_road_main_loop_heartbeat_count",
-			Help: "Heartbeat counter for the main loop for the device down on the road ",
+			Help: "Heartbeat counter for the main loop for the device down on the road",
 		},
 	)
 	prometheus.MustRegister(mbxRoadMainLoopHeartbeatCount)
+
+	//
+	// Soil Temperature
+	//
+	var soilTemperatureFahrenheit = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "soil_temperature_fahrenheit",
+			Help: "The temperature reading in fahrenheit from the device in the goat field",
+		},
+	)
+	prometheus.MustRegister(soilTemperatureFahrenheit)
+
+	//
+	// Soil Moisture
+	//
+	var soilMoisture = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "soil_moisture",
+			Help: "The moisture reading from the device in the goat field, can range from about 300 to 1,000",
+		},
+	)
+	prometheus.MustRegister(soilMoisture)
 
 	//
 	// Monitor the serial port forever
@@ -205,7 +227,7 @@ func serialServer(port *serial.Port) {
 					log.Printf("Error converting temperature reading to a float, original input message: %v, error: %v", msg, err)
 				} else {
 					mbxTemperatureFahrenheit.Set(f)
-					log.Printf("set MailboxTemperature to: %v", f)
+					log.Printf("ACTION: set MailboxTemperature to: %v", f)
 				}
 
 			case msg == iot.MbxMuleAlarm:
@@ -214,7 +236,7 @@ func serialServer(port *serial.Port) {
 
 			case msg == iot.MbxDoorOpened:
 				mbxMailboxDoorOpenedCount.Inc()
-				log.Println("increment mbxMailboxDoorOpenedCount")
+				log.Println("ACTION: increment mbxMailboxDoorOpenedCount")
 
 			case msg == iot.MbxChargerChargeStatusOn:
 				mbxChargerChargeStatus.Set(1)
@@ -235,6 +257,26 @@ func serialServer(port *serial.Port) {
 			case msg == iot.MbxRoadMainLoopHeartbeat:
 				mbxRoadMainLoopHeartbeatCount.Inc()
 				log.Println("ACTION: increment mbxRoadMainLoopHeartbeatCount")
+
+			case strings.Contains(msg, string(iot.SoilTemperature)):
+				parts := strings.Split(msg, ":")
+				f, err := strconv.ParseFloat(parts[1], 64)
+				if err != nil {
+					log.Printf("Error converting soil temperature reading to a float, original input message: %v, error: %v", msg, err)
+				} else {
+					soilTemperatureFahrenheit.Set(f)
+					log.Printf("ACTION: set soilTemperatureFahrenheit to: %v", f)
+				}
+
+			case strings.Contains(msg, string(iot.SoilMoisture)):
+				parts := strings.Split(msg, ":")
+				f, err := strconv.ParseFloat(parts[1], 64)
+				if err != nil {
+					log.Printf("Error converting soil moisture reading to a float, original input message: %v, error: %v", msg, err)
+				} else {
+					soilMoisture.Set(f)
+					log.Printf("ACTION: set soilMoisture to: %v", f)
+				}
 
 			case msg == "":
 				// eat whitespace
