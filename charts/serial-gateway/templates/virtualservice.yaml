@@ -1,0 +1,16 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: serial-gateway
+spec:
+  gateways:
+  - istio-system/istio-ingress-gateway
+  hosts:
+  - serial-gateway.{{ .Values.domain }}
+  http:
+  - name: serial-gateway
+    route:
+    - destination:
+        port:
+          number: 8080
+        host: serial-gateway
